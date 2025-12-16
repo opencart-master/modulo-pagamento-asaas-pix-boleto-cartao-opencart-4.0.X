@@ -1,0 +1,225 @@
+<style>
+        .panel {
+            margin-top: 40px;
+        }
+        .credit-card-box .panel-title {
+            display: inline;
+            font-weight: bold;
+        }
+        .credit-card-box .form-control {
+            height: 44px;
+            font-size: 16px;
+        }
+        .credit-card-box .btn {
+            font-size: 18px;
+            padding: 10px 20px;
+        }
+        .credit-card-box .input-group-addon {
+            background: #fff;
+            border-left: 0;
+            border-right: 0;
+        }
+        .borda {
+            border:#ccc solid 1px; 
+            border-radius: 5px;
+            padding: 15px;
+        }
+
+        .card-flag {
+            width: 40px;
+            height: 20px;
+            object-fit: contain;
+            display: none;
+        }
+    </style>
+    <div class="col-12">
+        {% if not modo %}
+        <div class="alert alert-info alert-dismissible"><i class="fa fa-exclamation-circle"></i> Atenção: você está em ambiente sandbox!</div>
+        {% else %}
+        <div class="alert alert-info alert-dismissible"><i class="fa fa-exclamation-circle"></i> Atenção: os dados do cartão precisam ser os mesmo do titular da conta!</div>
+        {% endif %}
+    </div>
+<div class="container">
+    <div class="col-12">
+        <div id="apireturn"></div>
+        <div class="borda">
+            
+                <form id="payment-form">
+                      <fieldset id="payment">
+    <legend><center><h4>Dados do Cartão de Crédito</h4></center></legend>
+                    <div class="form-group">
+                        <label for="card_name">Nome Impresso no Cartão</label>
+                        <input type="text" class="form-control" id="card_name" name="card_name" placeholder="Como aparece no cartão" required>
+                        <div id="error-card-name" class="invalid-feedback"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="card_number">Número do Cartão</label>
+                         <div class="input-group">
+                         <input type="text" class="form-control" id="card_number" name="card_number" maxlength="19" placeholder="0000 0000 0000 0000" required>
+                         <span class="input-group-addon"><img id="card_flag" class="card-flag" src="" alt="Bandeira"></span>
+                         </div>
+                         <div id="error-card-number" class="invalid-feedback"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 form-group">
+                            <label for="card_expire">Validade Mês</label>
+                            <input type="text" class="form-control" id="card-expire" name="card_expire" maxlength="2" placeholder="MM" required>
+                            <div id="error-card-expire" class="invalid-feedback"></div>
+                        </div>
+						<div class="col-sm-4 form-group">
+                            <label for="card_expire1">Validade Ano</label>
+                            <input type="text" class="form-control" id="card_expire1" name="card_expire1" maxlength="4" placeholder="AAAA" required>
+                            <div id="error-card-expire1" class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label for="card_cvv">CVV</label>
+                            <input type="text" class="form-control" id="card_cvv" name="card_cvv" maxlength="4" placeholder="CVV" required>
+                            <div id="error-card-cvv" class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="installments">Parcelas</label>
+                        <select class="form-control" id="installments" name="installments" required>
+                            <option value="">Selecione</option>
+							{% for parcela in parc %}
+                            <option value="{{ parcela.parcelas }}:{{ parcela.preco }}">{{ parcela.parcelas }}X - {{ parcela.valor_parcela }} 
+                            {% if parcela.tem_juros %} com juros {% else %} sem juros {% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div id="error-installments" class="invalid-feedback"></div>
+                    </div>
+
+                    <!-- Valor da compra -->
+                    <div class="form-group">
+                        <label for="amount">Valor da Compra</label>
+                        <input type="text" class="form-control" id="amount" name="amount" value="{{ vtotal }}" readonly>
+                    </div>
+                    <br>
+                    
+                    <div class="text-end">
+      <button type="submit" id="button-confirm" class="btn btn-primary">{{ button_confirm }}</button>
+    </div>
+  
+    </fieldset>
+                </form>
+          </div>
+    </div>
+</div>
+
+
+<script type="text/javascript"><!--
+$('#button-confirm').on('submit', function(e) {
+    e.preventDefault();
+
+    var element = this;
+	$.ajax({
+		url: 'index.php?route=extension/asaas/payment/asaas_cartao.confirm&language={{ language }}',
+        type: 'post',
+		data: $("#payment-form").serialize(),
+		dataType: 'json',
+		contentType: 'application/x-www-form-urlencoded',
+		cache: false,
+        processData: false,
+		beforeSend: function() {
+			$('#button-confirm').button('loading');
+		},
+		complete: function() {
+			$('#button-confirm').button('reset');
+		},
+		success: function(json) {
+            
+            $('.alert-danger').remove();
+            $('.alert-dismissible').remove();
+            $('#payment-form').find('.is-invalid').removeClass('is-invalid');
+            $('#payment-form').find('.invalid-feedback').removeClass('d-block');
+            
+            if (json['redirect']) {
+				location = json['redirect'];	
+			}
+			
+		    if (json['error']) {
+            if (json['error']['warning']) {
+                    $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json['error']['warning'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                }
+
+                for (key in json['error']) {
+                    $('#input-' + key.replaceAll('_', '-')).addClass('is-invalid').find('.form-control, .form-select, .form-check-input, .form-check-label').addClass('is-invalid');
+                    $('#error-' + key.replaceAll('_', '-')).html(json['error'][key]).addClass('d-block');
+                }
+			}
+
+            if (json['warning']) {
+				$('#apireturn').after('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json['warning'] + '</div>');
+                $('#card_cvv').val("");
+			}
+
+		},
+		error: function(xhr, ajaxOptions, thrownError) {
+			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+		}
+	});
+});
+//--></script>
+
+<script>
+$(document).ready(function(){
+    $('#card_name').on('input', function() {
+       this.value = this.value.toUpperCase();
+    });
+
+    $('#card_number').on('input', function() {
+        this.value = this.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ');
+    });
+    
+    $('#card_expire').on('input', function() {
+        this.value = this.value.replace(/\D/g, '').substr(0, 2);
+    });
+
+    $('#card_expire1').on('input', function() {
+        this.value = this.value.replace(/\D/g, '').substr(0, 4);
+    });
+
+    $('#card_cvv').on('input', function() {
+        this.value = this.value.replace(/\D/g, '').substr(0, 4);
+    });
+});
+</script>
+
+<script>
+$(document).ready(function(){
+    const bandeiras = {
+        visa: /^4/,
+        mastercard: /^(5[1-5]|2[2-7])/,
+        amex: /^3[47]/,
+        diners: /^3(?:0[0-5]|[68])/,
+        elo: /^(4011|4312|4389|4514|4576|5041|5067|5090|6277|6362|6504|6505|6507|6509|6516|6550)/,
+        hipercard: /^(6062|3841)/,
+        discover: /^6(?:011|5)/,
+        aura: /^50/
+    };
+
+    function detectarBandeira(numero) {
+        numero = numero.replace(/\D/g, '');
+        for (const [bandeira, regex] of Object.entries(bandeiras)) {
+            if (regex.test(numero)) return bandeira;
+        }
+        return null;
+    }
+
+    $('#card_number').on('input', function() {
+        let numero = $(this).val().replace(/\D/g, '');
+        $(this).val(numero.replace(/(\d{4})(?=\d)/g, '$1 ')); // máscara simples
+
+        let bandeira = detectarBandeira(numero);
+        let img = $('#card_flag');
+
+        if (bandeira) {
+            img.attr('src', 'https://raw.githubusercontent.com/aaronfagan/svg-credit-card-payment-icons/c2df917e4879ecba8e84a85c947ee7ee9dc5747d/flat-rounded/' + bandeira + '.svg');
+            img.show();
+        } else {
+            img.hide();
+        }
+    });
+});
+</script>

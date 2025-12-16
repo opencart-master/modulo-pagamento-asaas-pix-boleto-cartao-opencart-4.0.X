@@ -1,0 +1,137 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-payment" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-save"></i></button>
+        <a href="{{ back }}" data-bs-toggle="tooltip" title="{{ button_back }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_edit }}</div>
+      <div class="card-body">
+        <form id="form-payment" action="{{ save }}" method="post" data-oc-toggle="ajax">
+          <div class="row mb-3">
+            <label class="col-sm-2 control-label" for="input-mode">{{ entry_mode }}</label>
+            <div class="col-sm-10">
+              <select name="payment_asaas_boleto_mode" id="input-mode" class="form-control">
+                {% if payment_asaas_boleto_mode %}
+                <option value="1" selected="selected">{{ text_prod }}</option>
+                <option value="0">{{ text_sand }}</option>
+                {% else %}
+                <option value="1">{{ text_prod }}</option>
+                <option value="0" selected="selected">{{ text_sand }}</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          <div class="row mb-3 required">
+            <label class="col-sm-2 control-label" for="input-key">{{ entry_key }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="payment_asaas_boleto_api_key" value="{{ payment_asaas_boleto_api_key }}" placeholder="{{ entry_key }}" id="input-key" class="form-control" />
+            </div>
+          </div>
+		    <div class="row mb-3 required">
+			    <label for="input-doc" class="col-sm-2 col-form-label">{{ entry_doc }}</label>
+				<div class="col-sm-10">
+				  <select name="payment_asaas_boleto_doc" id="input-doc" class="form-select">
+				    <option value="0">{{ text_none }}</option>
+				      {% for custom_field in custom_fields %}
+				      {% if custom_field.location == 'account' %}
+					      <option value="{{ custom_field.custom_field_id }}"{% if custom_field.custom_field_id == payment_asaas_boleto_doc  %} selected="selected"{% endif %}>{{ custom_field.name }}</option>
+					    {% endif %}
+					    {% endfor %}
+				    </select>
+				  </div>
+			  </div> 
+		    <div class="row mb-3">
+			    <label for="input-doc1" class="col-sm-2 col-form-label">{{ entry_doc1 }}</label>
+				<div class="col-sm-10">
+				  <select name="payment_asaas_boleto_doc1" id="input-doc1" class="form-select">
+				    <option value="0">{{ text_none }}</option>
+				        {% for custom_field in custom_fields %}
+				        {% if custom_field.location == 'account' %}
+					        <option value="{{ custom_field.custom_field_id }}"{% if custom_field.custom_field_id == payment_asaas_boleto_doc1  %} selected="selected"{% endif %}>{{ custom_field.name }}</option>
+					      {% endif %}
+					      {% endfor %}
+				      </select>
+				    </div>
+			    </div>
+          <div class="row mb-3">
+            <label for="input-order-status" class="col-sm-2 col-form-label">{{ entry_order_status }}</label>
+            <div class="col-sm-10">
+              <select name="payment_asaas_boleto_order_status_id" id="input-order-status" class="form-select">
+                {% for order_status in order_statuses %}
+                  <option value="{{ order_status.order_status_id }}"{% if order_status.order_status_id == payment_asaas_boleto_order_status_id %} selected{% endif %}>{{ order_status.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-order-status2" class="col-sm-2 col-form-label">{{ entry_order_status2 }}</label>
+            <div class="col-sm-10">
+              <select name="payment_asaas_boleto_order_status_id2" id="input-order-status2" class="form-select">
+                {% for order_status in order_statuses %}
+                  <option value="{{ order_status.order_status_id }}"{% if order_status.order_status_id == payment_asaas_boleto_order_status_id2 %} selected{% endif %}>{{ order_status.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-order-status3" class="col-sm-2 col-form-label">{{ entry_order_status3 }}</label>
+            <div class="col-sm-10">
+              <select name="payment_asaas_boleto_order_status_id3" id="input-order-status3" class="form-select">
+                {% for order_status in order_statuses %}
+                  <option value="{{ order_status.order_status_id }}"{% if order_status.order_status_id == payment_asaas_boleto_order_status_id3 %} selected{% endif %}>{{ order_status.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-order-status4" class="col-sm-2 col-form-label">{{ entry_order_status4 }}</label>
+            <div class="col-sm-10">
+              <select name="payment_asaas_boleto_order_status_id4" id="input-order-status4" class="form-select">
+                {% for order_status in order_statuses %}
+                  <option value="{{ order_status.order_status_id }}"{% if order_status.order_status_id == payment_asaas_boleto_order_status_id4 %} selected{% endif %}>{{ order_status.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-order-status5" class="col-sm-2 col-form-label">{{ entry_order_status5 }}</label>
+            <div class="col-sm-10">
+              <select name="payment_asaas_boleto_order_status_id5" id="input-order-status5" class="form-select">
+                {% for order_status in order_statuses %}
+                  <option value="{{ order_status.order_status_id }}"{% if order_status.order_status_id == payment_asaas_boleto_order_status_id5 %} selected{% endif %}>{{ order_status.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label">{{ entry_status }}</label>
+            <div class="col-sm-10">
+              <div class="form-check form-switch form-switch-lg">
+                <input type="hidden" name="payment_asaas_boleto_status" value="0"/>
+                <input type="checkbox" name="payment_asaas_boleto_status" value="1" id="input-status" class="form-check-input"{% if payment_asaas_boleto_status %} checked{% endif %}/>
+              </div>
+            </div>
+          </div>          
+          <div class="row mb-3">
+            <label class="col-sm-2 control-label" for="input-sort-order">{{ entry_sort_order }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="payment_asaas_boleto_sort_order" value="{{ payment_asaas_boleto_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-sort-order" class="form-control" />
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}
