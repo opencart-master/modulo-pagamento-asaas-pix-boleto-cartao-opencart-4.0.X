@@ -7,6 +7,8 @@ class AsaasCartao  extends \Opencart\System\Engine\Controller {
 		$this->load->language('extension/asaas/payment/asaas_cartao');
 		$this->load->model('checkout/order');
 		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
+		$custom = json_decode($order_info['custom_field'],true);
+		$custom2 = $order_info['payment_custom_field'];
         
 		$parcela_total = $this->config->get('payment_asaas_cartao_parc');
 		$parcela_sem_juros = $this->config->get('payment_asaas_cartao_parc1');
@@ -18,7 +20,7 @@ class AsaasCartao  extends \Opencart\System\Engine\Controller {
 
 		$data['parc'] = $this->calcularParcelamento($order_info['total'], $parcela_total, $parcela_sem_juros, $juros);
 		$data['modo'] = $this->config->get('payment_asaas_cartao_mode');
-	    
+		
 		return $this->load->view('extension/asaas/payment/asaas_cartao', $data);
 	}
 
@@ -50,7 +52,7 @@ class AsaasCartao  extends \Opencart\System\Engine\Controller {
 		if ($order_id) {
 			$this->load->model('checkout/order');
 
-			$order_info = $this->model_checkout_order->getOrder($order_id);
+			$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
 			if (!$order_info) {
 				$json['redirect'] = $this->url->link('checkout/failure', 'language=' . $this->config->get('config_language'), true);
@@ -94,9 +96,8 @@ class AsaasCartao  extends \Opencart\System\Engine\Controller {
 			$this->load->model('checkout/order');
 			require_once DIR_EXTENSION . 'asaas/system/library/asaas/asaas_api.php';
 			$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
-			$custom = $order_info['custom_field'];
+			$custom = json_decode($order_info['custom_field'],true);
 			$custom2 = $order_info['payment_custom_field'];
-			$numero = $custom2[$this->config->get('payment_asaas_cartao_number')];
 
 			if ($this->config->get('payment_asaas_cartao_mode')) {
 			$mode = false;
@@ -107,16 +108,21 @@ class AsaasCartao  extends \Opencart\System\Engine\Controller {
 			$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_cartao_api_key'), $mode);
 
 			$getcustomer = $asaas->getCustomer($order_info['email']);
+			
+			$doc = 0;
+			$numero = '';
 
-			foreach ($custom as $key => $value) {
-				if ($this->config->get('payment_asaas_cartao_doc') == $key && !empty($value)) {
-                   $doc = $value;
-				} 
-				
-				if ($this->config->get('payment_asaas_cartao_doc1') == $key && !empty($value)) {
-				   $doc = $value;
-				}
-			}
+            if(isset($custom[$this->config->get('payment_asaas_cartao_doc')])) {
+		    $doc =  $custom[$this->config->get('payment_asaas_cartao_doc')];
+		    }
+		    
+		    if(isset($custom[$this->config->get('payment_asaas_cartao_doc1')])) {
+		    $doc =  $custom[$this->config->get('payment_asaas_cartao_doc1')];
+		    }
+			
+		    if(isset($custom2[$this->config->get('payment_asaas_cartao_number')])) {
+		    $numero = $custom2[$this->config->get('payment_asaas_cartao_number')];
+		    }
 
 			if ($getcustomer['totalCount']) {
 				$cid = $getcustomer['data'][0]['id'];

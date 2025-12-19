@@ -1,13 +1,12 @@
 <?php
-<?php
 namespace Opencart\Catalog\Controller\Extension\Asaas\Payment;
 
 class AsaasCallback  extends \Opencart\System\Engine\Controller {
     
-    public function index(): string {
+    public function index(): void {
 	 $input = file_get_contents('php://input');
         $payload = json_decode($input, true);
-
+        
 		$tokenseguro = "";
 		foreach (getallheaders() as $name => $value) {
 			if ($name == 'Asaas-Access-Token') {
@@ -67,7 +66,7 @@ class AsaasCallback  extends \Opencart\System\Engine\Controller {
                  }
                  */ 
                 if ($ord_status != $order_info['order_status_id']) {
-                    $this->model_checkout_order->addOrderHistory($order_id, $ord_status, $comment, true);
+                    $this->model_checkout_order->addHistory($order_id, $ord_status, $comment, true);
                 }
             }
         }
@@ -114,7 +113,7 @@ class AsaasCallback  extends \Opencart\System\Engine\Controller {
                 }
 
                 if ($ord_status != $order_info['order_status_id']) {
-                    $this->model_checkout_order->addOrderHistory($order_id, $ord_status, $comment, true);
+                    $this->model_checkout_order->addHistory($order_id, $ord_status, $comment, true);
                 }
             }
         }
@@ -162,7 +161,7 @@ class AsaasCallback  extends \Opencart\System\Engine\Controller {
                 }
 
                 if ($ord_status != $order_info['order_status_id']) {
-                    $this->model_checkout_order->addOrderHistory($order_id, $ord_status, $comment, true);
+                    $this->model_checkout_order->addHistory($order_id, $ord_status, $comment, true);
                 }
             }
         }

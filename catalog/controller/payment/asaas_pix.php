@@ -8,7 +8,7 @@ class AsaasPix  extends \Opencart\System\Engine\Controller {
 		$data['modo'] = $this->config->get('payment_asaas_pix_mode');
 
 		$data['language'] = $this->config->get('config_language');
-		
+
 		return $this->load->view('extension/asaas/payment/asaas_pix', $data);
 	}
 
@@ -28,7 +28,7 @@ class AsaasPix  extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('checkout/order');
 		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
-		$custom = $order_info['custom_field'];
+		$custom = json_decode($order_info['custom_field'],true);
 
 		if ($this->config->get('payment_asaas_pix_mode')) {
 			$mode = false;
@@ -39,18 +39,16 @@ class AsaasPix  extends \Opencart\System\Engine\Controller {
 		$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_pix_api_key'), $mode);
 
 		$getcustomer = $asaas->getCustomer($order_info['email']);
+		$doc = 0;
+		
+		if(isset($custom[$this->config->get('payment_asaas_pix_doc')])) {
+		    $doc =  $custom[$this->config->get('payment_asaas_pix_doc')];
+		}
+		
+		if(isset($custom[$this->config->get('payment_asaas_pix_doc1')])) {
+		    $doc =  $custom[$this->config->get('payment_asaas_pix_doc1')];
+		}
 
-			foreach (json_decode($custom, true) as $key) {
-			    
-			    if (isset($key[$this->config->get('payment_asaas_pix_doc')]) && !empty($key[$this->config->get('payment_asaas_pix_doc')])) {
-			      $doc = $key[$this->config->get('payment_asaas_pix_doc')];
-			    }
-			    
-			    if (isset($key[$this->config->get('payment_asaas_pix_doc1')]) && !empty($key[$this->config->get('payment_asaas_pix_doc1')])) {
-			      $doc = $key[$this->config->get('payment_asaas_pix_doc1')];
-			    }
-			}
-			
 			if ($getcustomer['totalCount']) {
 				$cid = $getcustomer['data'][0]['id'];
 			} else {
@@ -93,7 +91,7 @@ class AsaasPix  extends \Opencart\System\Engine\Controller {
 		    $comment .= "Link do QRCODE: <a href='" . $payment['invoiceUrl'] . "' class='label label-info' target='_blank'> VER 2ª via Pix </a> \n\n";
 			$comment .= '<img src="' . $qrcode .'" width="200px" height="200px" alt="Pix QRCode" />' . "\n";
 			$comment .= '<div class="panel-body"><label class="col-sm-2 control-label" for="copia"><b>PIX Copia e Cola:</b></label><div class="input-group"><input type="text" class="form-control" value="' . $copia .'" name="copia" id="copia" class="form-control" /><span class="input-group-btn"><input type="button" value="Copiar PIX" id="button-copiar" data-loading-text="Copiando"  class="btn btn-primary" /></span></div></div>'. "\n";
-	  		$comment .= "<b>Expiração:</b> " . $exp . "\n";
+	  		$comment .= "<b>Expiração:</b>" . $exp . "\n";
 			$comment .= '<script type="text/javascript">';
 			$comment .= '$(document).ready(function() {';
 			$comment .= '$("#button-copiar").on("click", function() {';

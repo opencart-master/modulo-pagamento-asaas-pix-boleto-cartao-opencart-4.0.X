@@ -8,7 +8,7 @@ class AsaasBoleto extends \Opencart\System\Engine\Controller {
 		$data['modo'] = $this->config->get('payment_asaas_boleto_mode');
 		
 		$data['language'] = $this->config->get('config_language');
-	    
+
 		return $this->load->view('extension/asaas/payment/asaas_boleto', $data);
 	}
 
@@ -28,7 +28,7 @@ class AsaasBoleto extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('checkout/order');
 		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
-		$custom = $order_info['custom_field'];
+		$custom = json_decode($order_info['custom_field'],true);
 
 		if ($this->config->get('payment_asaas_boleto_mode')) {
 			$mode = false;
@@ -39,17 +39,14 @@ class AsaasBoleto extends \Opencart\System\Engine\Controller {
 		$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_boleto_api_key'), $mode);
 
 		$getcustomer = $asaas->getCustomer($order_info['email']);
-
-			foreach (json_decode($custom, true) as $key) {
-			    
-			    if (isset($key[$this->config->get('payment_asaas_boleto_doc')]) && !empty($key[$this->config->get('payment_asaas_boleto_doc')])) {
-			      $doc = $key[$this->config->get('payment_asaas_boleto_doc')];
-			    }
-			    
-			    if (isset($key[$this->config->get('payment_asaas_boleto_doc1')]) && !empty($key[$this->config->get('payment_asaas_boleto_doc1')])) {
-			      $doc = $key[$this->config->get('payment_asaas_boleto_doc1')];
-			    }
-			}
+		
+            if(isset($custom[$this->config->get('payment_asaas_boleto_doc')])) {
+		        $doc =  $custom[$this->config->get('payment_asaas_boleto_doc')];
+		    }
+		    
+            if(isset($custom[$this->config->get('payment_asaas_boleto_doc1')])) {
+		        $doc =  $custom[$this->config->get('payment_asaas_boleto_doc1')];
+		    }
 			
 			if ($getcustomer['totalCount']) {
 				$cid = $getcustomer['data'][0]['id'];
@@ -96,6 +93,7 @@ class AsaasBoleto extends \Opencart\System\Engine\Controller {
 			if (isset($payment['id'])) {
 			$this->cadId($payment['id'], $order_info['order_id']);
 			$res_api = $this->getPay($payment['id'], $mode);
+			$this->log->write(json_encode($res_api));
 			$barcode = $res_api['bankSlip']['barCode'];
 		    $exp = $res_api['pix']['expirationDate'];
 		    $comment .= "Pagamento ID: " . $payment['id'] . "\n";
@@ -109,12 +107,12 @@ class AsaasBoleto extends \Opencart\System\Engine\Controller {
     		$comment .= 'try {';
       		$comment .= 'var sucesso = document.execCommand("copy");';
       		$comment .= 'if (sucesso) {';
-        	$comment .= 'alert("Código  de Barras copiado!");';
+        	$comment .= 'alert("Pix copiado para a área de transferência!");';
       		$comment .= '} else {';
-        	$comment .= 'alert("Não foi possível copiar o Código de Barras.");';
+        	$comment .= 'alert("Não foi possível copiar o Pix.");';
     		$comment .= '} } catch (err) {';
-      		$comment .= 'console.error("Falha ao copiar o Código de Barras: ", err);';
-      		$comment .= 'alert("Não foi possível copiar o Código de Barras.");';
+      		$comment .= 'console.error("Falha ao copiar o Pix: ", err);';
+      		$comment .= 'alert("Não foi possível copiar o Pix.");';
     		$comment .= '} }); });';
 			$comment .= '</script>';
 			$this->model_checkout_order->addHistory($this->session->data['order_id'], $this->config->get('payment_asaas_boleto_order_status_id'), $comment, true);
@@ -149,7 +147,7 @@ class AsaasBoleto extends \Opencart\System\Engine\Controller {
             
             $response = curl_exec($soap_do); 
             curl_close($soap_do);
-			$this->log->write($response);
+			
             $resposta = json_decode($response, true);
             return  $resposta;
     }
