@@ -173,7 +173,7 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
     		"PAYMENT_CHARGEBACK_DISPUTE"
 		],
 		"name" => "asaas-webhook",
-  		"url" =>  HTTP_CATALOG . "index.php?route=extension/payment/asaas_callback",
+  		"url" =>  HTTP_CATALOG . $this->config->get('config_language') ."?route=extension/asaas/payment/asaas_callback",
  		"enabled" => true,
   		"apiVersion" => 3,
 		"authToken" => $this->config->get('payment_asaas_pix_wb'),
