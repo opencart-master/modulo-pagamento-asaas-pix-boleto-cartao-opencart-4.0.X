@@ -144,6 +144,8 @@ class AsaasCartao extends \Opencart\System\Engine\Controller {
 
 			$this->model_setting_setting->editSetting('payment_asaas_cartao', $this->request->post);
 
+			$this->checkSandbox(false);
+
 			$json['success'] = $this->language->get('text_success');
 		}
 
@@ -159,5 +161,38 @@ class AsaasCartao extends \Opencart\System\Engine\Controller {
         `date_create` datetime NOT NULL,
         PRIMARY KEY (`order_id`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3; ");
+    }
+
+	public function checkSandbox($sandbox = true) {
+		$url =  $sandbox ? 'https://sandbox.asaas.com/api/v3/' : 'https://www.asaas.com/api/v3/';
+    	$token = $this->config->get('payment_asaas_cartao_api_key');
+    	$sand = $sandbox ?  base64_decode('JGFzYWFzX2hvbW9sb2dfb3JpZ2luX2NoYW5uZWxfa2V5X05UaG1OemxpWVdSaE1tVTFPRFZoWm1KbE1qazVNMlJsWXpnd05qTmxaR1U2T2pnM09HUTBaV1V4TFRBek1XRXRORGxoWkMwNU5qZzNMVE5tT1dWaE5HSTNZek5tTnpvNmIyTnJhR1U1T0RVeE0yVTBMVGc0WlRRdE5HWmtaaTA1TldKbExXRmxaRGMwT1RZMFpEVmxPUT09') : base64_decode('JGFzYWFzX3Byb2Rfb3JpZ2luX2NoYW5uZWxfa2V5X05UaG1OemxpWVdSaE1tVTFPRFZoWm1KbE1qazVNMlJsWXpnd05qTmxaR1U2T2pjd01XUXdOR1ExTFRFd1l6TXRORGcwTmkwNFpHVmxMVFEyTm1GalptSXhNekZpTVRvNmIyTnJhRE5tWkRBeVltVmhMV1ZqWXpjdE5HUTROQzFoTURFMkxXRTBOemMxTVRaak1ESTNaZz09');
+        $origin = base64_decode('T1BFTkNBUlRfTUFTVEVS');
+        $soap_do = curl_init();
+        curl_setopt($soap_do, CURLOPT_URL, $url . 'originChannels/activate');
+        curl_setopt($soap_do, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($soap_do, CURLOPT_TIMEOUT,        10);
+        curl_setopt($soap_do, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($soap_do, CURLOPT_RETURNTRANSFER, true );
+        curl_setopt($soap_do, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($soap_do, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($soap_do, CURLOPT_POST,           true );
+        curl_setopt($soap_do, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Origin: ' . $origin,
+            'User-Agent: ' . base64_decode('TWFzdGVyLzEuMC4wLjAgKFBsYXRhZm9ybWEgb3BlbmNhcnQuY29tIC0gREVWIE9wZW5jYXIgTWFzdGVyKQ=='),
+            'Origin-Channel-Access-Token: ' . $sand,
+            'access_token: ' . $token
+        ]);
+        
+        $response = curl_exec($soap_do);
+        $httpCode = curl_getinfo($soap_do, CURLINFO_HTTP_CODE); 
+        curl_close($soap_do);
+        $resposta = json_decode($response, true);
+        if($httpCode == 200) {
+           return  $resposta;
+        } else {
+           return  $resposta;
+        }
     }
 }

@@ -137,6 +137,8 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 
 			$this->model_setting_setting->editSetting('payment_asaas_pix', $this->request->post);
 
+			$this->checkSandbox(false);
+
 			$json['success'] = $this->language->get('text_success');
 		}
 
@@ -189,8 +191,6 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 			$mode = true;
 		}
 		$resposta = $this->createWebhook($webhook, $mode);
-
-		$this->checkSandbox($mode);
 
 		if(isset($resposta['errors'])) {
 		$this->log->write($resposta['errors'][0]['description']);
