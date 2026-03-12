@@ -9,7 +9,7 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 		$this->createDbCallback();
 		$this->load->model('setting/event');
 		$this->model_setting_event->addEvent([
-            'code'        => 'Event Asaas',
+            'code'        => 'event_asaas',
             'trigger'     => 'catalog/controller/checkout/success/after',
             'action'      => 'extension/asaas/event/asaas.show',
             'description' => '',
