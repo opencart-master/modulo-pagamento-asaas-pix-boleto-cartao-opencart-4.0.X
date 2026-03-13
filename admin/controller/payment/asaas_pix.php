@@ -17,11 +17,21 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
             'sort_order'  => 1
         ]);
 
+		$this->model_setting_event->addEvent([
+            'code'        => 'asaas_version',
+            'trigger'     => 'admin/controller/common/dashboard/after',
+            'action'      => 'extension/asaas/event/version',
+            'description' => '',
+            'status'      => 1,
+            'sort_order'  => 1
+        ]);
+
 	}
 
 	public function uninstall(): void {
         $this->load->model('setting/event');
-        $this->model_setting_event->deleteEventByCode('Event Asaas');
+        $this->model_setting_event->deleteEventByCode('event_asaas');
+		$this->model_setting_event->deleteEventByCode('asaas_version');
     }
 
 	protected function setUsergroupPermissions($route, $typeperm = 'access'): void {
