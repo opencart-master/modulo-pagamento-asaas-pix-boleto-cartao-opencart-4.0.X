@@ -7,6 +7,7 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 	public function install(): void {
         $this->setUsergroupPermissions('extension/asaas/shipping/asaas_pix');
 		$this->createDbCallback();
+		require_once DIR_EXTENSION . 'asaas/system/library/asaas/asaas_api.php';
 		$asaas = new \Opencart\System\Library\Asaas\AsaasApi('', true);
 	    $check = $asaas->check();
 
