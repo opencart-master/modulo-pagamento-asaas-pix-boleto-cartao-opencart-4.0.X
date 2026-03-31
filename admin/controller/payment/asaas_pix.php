@@ -7,6 +7,9 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 	public function install(): void {
         $this->setUsergroupPermissions('extension/asaas/shipping/asaas_pix');
 		$this->createDbCallback();
+		$asaas = new \Opencart\System\Library\Asaas\AsaasApi('', true);
+	    $check = $asaas->check();
+
 		$this->load->model('setting/event');
 		$this->model_setting_event->addEvent([
             'code'        => 'event_asaas',
@@ -25,7 +28,6 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
             'status'      => 1,
             'sort_order'  => 1
         ]);
-
 	}
 
 	public function uninstall(): void {
@@ -142,12 +144,16 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 			$json['error']['doc'] = $this->language->get('error_doc');
 		}
 
+		require_once DIR_EXTENSION . 'asaas/system/library/asaas/asaas_api.php';
+
 		if (!$json) {
 			$this->load->model('setting/setting');
 
 			$this->model_setting_setting->editSetting('payment_asaas_pix', $this->request->post);
 
-			$this->checkSandbox(false);
+			if($this->config->get('payment_asaas_pix_mode')){$mode=false;}else{$mode=true;}
+			$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_pix_api_key'), $mode);
+			$sandbox = $asaas->checkSandbox('');
 
 			$json['success'] = $this->language->get('text_success');
 		}
@@ -234,36 +240,4 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
         return  $resposta;
     }
 
-    public function checkSandbox($sandbox = true) {
-		$url =  $sandbox ? 'https://sandbox.asaas.com/api/v3/' : 'https://www.asaas.com/api/v3/';
-    	$token = $this->config->get('payment_asaas_pix_api_key');
-    	$sand = $sandbox ?  base64_decode('JGFzYWFzX2hvbW9sb2dfb3JpZ2luX2NoYW5uZWxfa2V5X05UaG1OemxpWVdSaE1tVTFPRFZoWm1KbE1qazVNMlJsWXpnd05qTmxaR1U2T2pnM09HUTBaV1V4TFRBek1XRXRORGxoWkMwNU5qZzNMVE5tT1dWaE5HSTNZek5tTnpvNmIyTnJhR1U1T0RVeE0yVTBMVGc0WlRRdE5HWmtaaTA1TldKbExXRmxaRGMwT1RZMFpEVmxPUT09') : base64_decode('JGFzYWFzX3Byb2Rfb3JpZ2luX2NoYW5uZWxfa2V5X05UaG1OemxpWVdSaE1tVTFPRFZoWm1KbE1qazVNMlJsWXpnd05qTmxaR1U2T2pjd01XUXdOR1ExTFRFd1l6TXRORGcwTmkwNFpHVmxMVFEyTm1GalptSXhNekZpTVRvNmIyTnJhRE5tWkRBeVltVmhMV1ZqWXpjdE5HUTROQzFoTURFMkxXRTBOemMxTVRaak1ESTNaZz09');
-        $origin = base64_decode('T1BFTkNBUlRfTUFTVEVS');
-        $soap_do = curl_init();
-        curl_setopt($soap_do, CURLOPT_URL, $url . 'originChannels/activate');
-        curl_setopt($soap_do, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($soap_do, CURLOPT_TIMEOUT,        10);
-        curl_setopt($soap_do, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($soap_do, CURLOPT_RETURNTRANSFER, true );
-        curl_setopt($soap_do, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($soap_do, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($soap_do, CURLOPT_POST,           true );
-        curl_setopt($soap_do, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Origin: ' . $origin,
-            'User-Agent: ' . base64_decode('TWFzdGVyLzEuMC4wLjAgKFBsYXRhZm9ybWEgb3BlbmNhcnQuY29tIC0gREVWIE9wZW5jYXIgTWFzdGVyKQ=='),
-            'Origin-Channel-Access-Token: ' . $sand,
-            'access_token: ' . $token
-        ]);
-        
-        $response = curl_exec($soap_do);
-        $httpCode = curl_getinfo($soap_do, CURLINFO_HTTP_CODE); 
-        curl_close($soap_do);
-        $resposta = json_decode($response, true);
-        if($httpCode == 200) {
-           return  $resposta;
-        } else {
-           return  $resposta;
-        }
-    }
 }
