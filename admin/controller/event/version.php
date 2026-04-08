@@ -4,7 +4,7 @@ namespace Opencart\Admin\Controller\Extension\Asaas\Event;
 class Version extends \Opencart\System\Engine\Controller {
     
 	public function index(string &$route, array &$args, mixed &$output): void {
-	    $version = '1.0.0.1';
+	    $version = '1.0.2.0';
 	    $url = base64_decode('aHR0cHM6Ly9vcGVuY2FydG1hc3Rlci5jb20uYnIvbW9kdWxlL3ZlcnNpb24v');
         $soap_do = curl_init();
         curl_setopt($soap_do, CURLOPT_URL, $url);
