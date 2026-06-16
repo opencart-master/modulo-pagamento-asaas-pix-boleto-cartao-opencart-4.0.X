@@ -8,7 +8,7 @@ class AsaasCartao extends \Opencart\System\Engine\Controller {
         $this->setUsergroupPermissions('extension/asaas/shipping/asaas_cartao');
 		$this->createDbCallback();
 		require_once DIR_EXTENSION . 'asaas/system/library/asaas/asaas_api.php';
-		$asaas = new \Opencart\System\Library\Asaas\AsaasApi('', true);
+		$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_cartao_api_key'));
 	    $check = $asaas->check();
 	}
 
@@ -68,8 +68,6 @@ class AsaasCartao extends \Opencart\System\Engine\Controller {
 
 		$data['payment_asaas_cartao_order_status_id5'] = $this->config->get('payment_asaas_cartao_order_status_id5');
 
-		$data['payment_asaas_cartao_mode'] = $this->config->get('payment_asaas_cartao_mode');
-
 		$this->load->model('localisation/order_status');
 
 		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
@@ -102,6 +100,14 @@ class AsaasCartao extends \Opencart\System\Engine\Controller {
 			$data['payment_asaas_cartao_juros'] = $this->config->get('payment_asaas_cartao_juros');
 		} else {
 			$data['payment_asaas_cartao_juros'] = 3.99;
+		}
+
+		if (isset($this->request->get['payment_asaas_cartao_venc'])) {
+			$data['payment_asaas_cartao_venc'] = $this->request->get['payment_asaas_cartao_venc'];
+		} elseif (!empty($this->config->get('payment_asaas_cartao_venc'))) {
+			$data['payment_asaas_cartao_venc'] = $this->config->get('payment_asaas_cartao_venc');
+		} else {
+			$data['payment_asaas_cartao_venc'] = 1;
 		}
 
 		$data['payment_asaas_cartao_doc'] = $this->config->get('payment_asaas_cartao_doc');
@@ -149,9 +155,8 @@ class AsaasCartao extends \Opencart\System\Engine\Controller {
 
 			$this->model_setting_setting->editSetting('payment_asaas_cartao', $this->request->post);
 
-			if($this->config->get('payment_asaas_cartao_mode')){$mode=false;}else{$mode=true;}
-			$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_cartao_api_key'), $mode);
-			$sandbox = $asaas->checkSandbox('');
+			$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_cartao_api_key'));
+			$sandbox = $asaas->checkSandbox($this->config->get('payment_asaas_cartao_api_key'));
 
 			$json['success'] = $this->language->get('text_success');
 		}

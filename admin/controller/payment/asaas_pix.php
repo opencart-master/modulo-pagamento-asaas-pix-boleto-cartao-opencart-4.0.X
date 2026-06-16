@@ -8,7 +8,7 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
         $this->setUsergroupPermissions('extension/asaas/shipping/asaas_pix');
 		$this->createDbCallback();
 		require_once DIR_EXTENSION . 'asaas/system/library/asaas/asaas_api.php';
-		$asaas = new \Opencart\System\Library\Asaas\AsaasApi('', true);
+		$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_pix_api_key'));
 	    $check = $asaas->check();
 
 		$this->load->model('setting/event');
@@ -95,8 +95,6 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 
 		$data['payment_asaas_pix_order_status_id5'] = $this->config->get('payment_asaas_pix_order_status_id5');
 
-		$data['payment_asaas_pix_mode'] = $this->config->get('payment_asaas_pix_mode');
-
 		$this->load->model('localisation/order_status');
 
 		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
@@ -108,7 +106,15 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 		} elseif (!empty($this->config->get('payment_asaas_pix_wb'))) {
 			$data['payment_asaas_pix_wb'] = $this->config->get('payment_asaas_pix_wb');
 		} else {
-			$data['payment_asaas_pix_wb'] = uniqid();
+			$data['payment_asaas_pix_wb'] = md5(uniqid());
+		}
+
+		if (isset($this->request->get['payment_asaas_pix_venc'])) {
+			$data['payment_asaas_pix_venc'] = $this->request->get['payment_asaas_pix_venc'];
+		} elseif (!empty($this->config->get('payment_asaas_pix_venc'))) {
+			$data['payment_asaas_pix_venc'] = $this->config->get('payment_asaas_pix_venc');
+		} else {
+			$data['payment_asaas_pix_venc'] = 1;
 		}
 
 		$data['payment_asaas_pix_sort_order'] = $this->config->get('payment_asaas_pix_sort_order');
@@ -152,8 +158,7 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 
 			$this->model_setting_setting->editSetting('payment_asaas_pix', $this->request->post);
 
-			if($this->config->get('payment_asaas_pix_mode')){$mode=false;}else{$mode=true;}
-			$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_pix_api_key'), $mode);
+			$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_pix_api_key'));
 			$sandbox = $asaas->checkSandbox('');
 
 			$json['success'] = $this->language->get('text_success');
@@ -201,13 +206,7 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 		"email" => $this->config->get('config_email')
 		));
 
-		$this->load->model('setting/setting');
-		if ($this->config->get('payment_asaas_pix_mode')) {
-			$mode = false;
-		} else {
-			$mode = true;
-		}
-		$resposta = $this->createWebhook($webhook, $mode);
+		$resposta = json_decode($asaas->createWebhooks($webhook), true);
 
 		if(isset($resposta['errors'])) {
 		$this->log->write($resposta['errors'][0]['description']);
@@ -217,28 +216,5 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 
 		$this->index();
 	}
-
-	public function createWebhook($json_convert, $sandbox = true) {
-		$url =  $sandbox ? 'https://sandbox.asaas.com/api/v3/' : 'https://www.asaas.com/api/v3/';
-    	$token = $this->config->get('payment_asaas_pix_api_key');
-		$user_agent = base64_decode('TWFzdGVyLzEuMC4wLjAgKFBsYXRhZm9ybWEgb3BlbmNhcnQuY29tIC0gREVWIE9wZW5jYXIgTWFzdGVyKQ==');
-    	$headers = array('Accept: application/json', 'Content-Type: application/json;charset=UTF-8', 'User-Agent: ' . $user_agent , 'access_token: ' . $token);
-        $soap_do = curl_init();
-        curl_setopt($soap_do, CURLOPT_URL, $url . 'webhooks');
-        curl_setopt($soap_do, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($soap_do, CURLOPT_TIMEOUT,        10);
-        curl_setopt($soap_do, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($soap_do, CURLOPT_RETURNTRANSFER, true );
-        curl_setopt($soap_do, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($soap_do, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($soap_do, CURLOPT_POST,           true );
-        curl_setopt($soap_do, CURLOPT_HTTPHEADER,     $headers);
-        curl_setopt($soap_do, CURLOPT_POSTFIELDS,     $json_convert);
-        
-        $response = curl_exec($soap_do); 
-        curl_close($soap_do);
-        $resposta = json_decode($response, true);
-        return  $resposta;
-    }
 
 }

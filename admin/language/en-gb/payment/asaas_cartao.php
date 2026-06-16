@@ -16,6 +16,7 @@ $_['entry_wb']  = 'Webhook Security';
 $_['entry_mode']  = 'Ambiente';
 $_['entry_doc']  = 'CPF';
 $_['entry_doc1']  = 'CNPJ';
+$_['entry_venc']  = 'Dias para Vencimento';
 $_['entry_juros']  = 'Juros';
 $_['entry_parc']  = 'Total Parcelas';
 $_['entry_parc1']  = 'Parcelas sem Juros';

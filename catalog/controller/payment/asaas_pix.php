@@ -30,13 +30,7 @@ class AsaasPix  extends \Opencart\System\Engine\Controller {
 		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 		$custom = json_decode($order_info['custom_field'],true);
 
-		if ($this->config->get('payment_asaas_pix_mode')) {
-			$mode = false;
-		} else {
-			$mode = true;
-		}
-		
-		$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_pix_api_key'), $mode);
+		$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_pix_api_key'));
 
 		$getcustomer = $asaas->getCustomer($order_info['email']);
 		$doc = 0;
@@ -67,7 +61,7 @@ class AsaasPix  extends \Opencart\System\Engine\Controller {
 			"customer" => $cid,
 			"billingType" => "PIX",
 			"value" => $order_info['total'],
-			"dueDate" => date('Y-m-d', strtotime('+1 days')),
+			"dueDate" => date('Y-m-d', strtotime('+' . $this->config->get('payment_asaas_pix_venc') .' days')),
 			"description" => "Pedido " . $order_info['order_id'],
 			"externalReference"	=> $order_info['order_id'],
 			//"callback" => array("successUrl" => HTTPS_SERVER . "index.php?route=checkout/success")
@@ -83,7 +77,7 @@ class AsaasPix  extends \Opencart\System\Engine\Controller {
 		if (!$json) { 
 			if (isset($payment['id'])) {
 			$this->cadId($payment['id'], $order_info['order_id']);
-			$res_api = $this->getPay($payment['id'], $mode);
+			$res_api = $this->getPay($payment['id']);
             $qrcode = 'data:image/png;base64, ' . $res_api['pix']['encodedImage'];
             $copia = $res_api['pix']['payload'];
 		    $exp = $res_api['pix']['expirationDate'];
@@ -123,25 +117,13 @@ class AsaasPix  extends \Opencart\System\Engine\Controller {
 		$this->response->setOutput(json_encode($json));	
 	}
 
-	public function getPay($id, $sandbox = true) {
-            $url =  $sandbox ? 'https://sandbox.asaas.com/api/v3/' : 'https://www.asaas.com/api/v3/';
-            $token = $this->config->get('payment_asaas_pix_api_key');
-            $user_agent = base64_decode('TWFzdGVyLzEuMC4wLjAgKFBsYXRhZm9ybWEgb3BlbmNhcnQuY29tIC0gREVWIE9wZW5jYXIgTWFzdGVyKQ==');
-    	      $headers = array('Accept: application/json', 'Content-Type: application/json;charset=UTF-8', 'User-Agent: ' . $user_agent , 'access_token: ' . $token);
-            $soap_do = curl_init();
-            curl_setopt($soap_do, CURLOPT_URL, $url . 'payments/'. $id . '/billingInfo');
-            curl_setopt($soap_do, CURLOPT_CONNECTTIMEOUT, 10);
-            curl_setopt($soap_do, CURLOPT_TIMEOUT,        10);
-            curl_setopt($soap_do, CURLOPT_CUSTOMREQUEST, "GET");
-            curl_setopt($soap_do, CURLOPT_RETURNTRANSFER, true );
-            curl_setopt($soap_do, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($soap_do, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($soap_do, CURLOPT_HTTPHEADER,     $headers);
-            
-            $response = curl_exec($soap_do); 
-            curl_close($soap_do);
-            $resposta = json_decode($response, true);
-            return  $resposta;
+	public function getPay($id) {
+		require_once DIR_EXTENSION . 'asaas/system/library/asaas/asaas_api.php';
+		$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_pix_api_key'));
+
+		$resposta = json_decode($asaas->getPaymentInfo($id), true);
+
+		return $resposta;
     }
 
 	public function cadId($id, $order_id) {

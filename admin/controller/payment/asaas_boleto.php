@@ -8,7 +8,7 @@ class AsaasBoleto extends \Opencart\System\Engine\Controller {
         $this->setUsergroupPermissions('extension/asaas/shipping/asaas_boleto');
 		$this->createDbCallback();
 		require_once DIR_EXTENSION . 'asaas/system/library/asaas/asaas_api.php';
-		$asaas = new \Opencart\System\Library\Asaas\AsaasApi('', true);
+		$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_boleto_api_key'));
 	    $check = $asaas->check();
 	}
 
@@ -68,8 +68,6 @@ class AsaasBoleto extends \Opencart\System\Engine\Controller {
 
 		$data['payment_asaas_boleto_order_status_id5'] = $this->config->get('payment_asaas_boleto_order_status_id5');
 
-		$data['payment_asaas_boleto_mode'] = $this->config->get('payment_asaas_boleto_mode');
-
 		$this->load->model('localisation/order_status');
 
 		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
@@ -83,6 +81,14 @@ class AsaasBoleto extends \Opencart\System\Engine\Controller {
 		$data['payment_asaas_boleto_doc'] = $this->config->get('payment_asaas_boleto_doc');
 
 		$data['payment_asaas_boleto_doc1'] = $this->config->get('payment_asaas_boleto_doc1');
+
+		if (isset($this->request->get['payment_asaas_boleto_venc'])) {
+			$data['payment_asaas_boleto_venc'] = $this->request->get['payment_asaas_boleto_venc'];
+		} elseif (!empty($this->config->get('payment_asaas_boleto_venc'))) {
+			$data['payment_asaas_boleto_venc'] = $this->config->get('payment_asaas_boleto_venc');
+		} else {
+			$data['payment_asaas_boleto_venc'] = 1;
+		}
 
 		$this->load->model('customer/custom_field');
 		
@@ -119,9 +125,8 @@ class AsaasBoleto extends \Opencart\System\Engine\Controller {
 
 			$this->model_setting_setting->editSetting('payment_asaas_boleto', $this->request->post);
 			
-			if($this->config->get('payment_asaas_boleto_mode')){$mode=false;}else{$mode=true;}
-			$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_boleto_api_key'), $mode);
-			$sandbox = $asaas->checkSandbox('');
+			$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_boleto_api_key'));
+			$sandbox = $asaas->checkSandbox($this->config->get('payment_asaas_boleto_api_key'));
 
 			$json['success'] = $this->language->get('text_success');
 		}

@@ -99,13 +99,7 @@ class AsaasCartao  extends \Opencart\System\Engine\Controller {
 			$custom = json_decode($order_info['custom_field'],true);
 			$custom2 = $order_info['payment_custom_field'];
 
-			if ($this->config->get('payment_asaas_cartao_mode')) {
-			$mode = false;
-		    } else {
-			$mode = true;
-		    }
-
-			$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_cartao_api_key'), $mode);
+			$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_cartao_api_key'));
 
 			$getcustomer = $asaas->getCustomer($order_info['email']);
 			
@@ -145,7 +139,7 @@ class AsaasCartao  extends \Opencart\System\Engine\Controller {
 			"billingType" =>  "CREDIT_CARD",
 			"customer" => $cid,
 			"value" => $order_info['total'],
-			"dueDate" => date('Y-m-d'),
+			"dueDate" => date('Y-m-d', strtotime('+' . $this->config->get('payment_asaas_cartao_venc') .' days')),
 			"description" => "Pedido " . $order_info['order_id'],
 			"externalReference"	=> $order_info['order_id'],
 			"installmentCount" => 1,
