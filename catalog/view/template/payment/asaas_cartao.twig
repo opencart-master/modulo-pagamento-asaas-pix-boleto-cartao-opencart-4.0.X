@@ -33,11 +33,7 @@
         }
     </style>
     <div class="col-12">
-        {% if not modo %}
-        <div class="alert alert-info alert-dismissible"><i class="fa fa-exclamation-circle"></i> Atenção: você está em ambiente sandbox!</div>
-        {% else %}
         <div class="alert alert-info alert-dismissible"><i class="fa fa-exclamation-circle"></i> Atenção: os dados do cartão precisam ser os mesmo do titular da conta!</div>
-        {% endif %}
     </div>
 <div class="container">
     <div class="col-12">
@@ -47,36 +43,39 @@
                 <form id="payment-form">
                       <fieldset id="payment">
     <legend><center><h4>Dados do Cartão de Crédito</h4></center></legend>
-                    <div class="form-group">
-                        <label for="card_name">Nome Impresso no Cartão</label>
-                        <input type="text" class="form-control" id="card_name" name="card_name" placeholder="Como aparece no cartão" required>
-                        <div id="error-card-name" class="invalid-feedback"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="card_number">Número do Cartão <img id="card_flag" class="card-flag" src="" alt="Bandeira"></label>
-                         <input type="text" class="form-control" id="card_number" name="card_number" maxlength="19" placeholder="0000 0000 0000 0000" required>
-                         <div id="error-card-number" class="invalid-feedback"></div>
-                    </div>
+
+      <div class="col mb-12 required">
+        <label for="input-card-name" class="col-form-label">Nome Impresso no Cartão</label>
+        <input type="text" name="card_name" value="" placeholder="Como aparece no cartão" id="input-card-name" class="form-control"/>
+        <div id="error-card-name" class="invalid-feedback"></div>
+      </div>
+      
+      <div class="col mb-12 required">
+        <label for="input-card-number" class="col-form-label">Número do Cartão <img id="card_flag" class="card-flag" src="" alt="Bandeira"></label>
+        <input type="text" name="card_number" value="" placeholder="Como aparece no cartão" maxlength="19" placeholder="0000 0000 0000 0000" id="input-card-number" class="form-control"/>
+        <div id="error-card-number" class="invalid-feedback"></div>
+      </div>
+      
                     <div class="row">
-                        <div class="col-sm-4 form-group">
-                            <label for="card_expire">Validade Mês</label>
-                            <input type="text" class="form-control" id="card-expire" name="card_expire" maxlength="2" placeholder="MM" required>
+                        <div class="col-sm-4 required">
+                            <label for="input-card-expire" class="col-form-label">Validade Mês</label>
+                            <input type="text" class="form-control" id="input-card-expire" name="card_expire" maxlength="2" placeholder="MM" class="form-control"/>
                             <div id="error-card-expire" class="invalid-feedback"></div>
                         </div>
-						<div class="col-sm-4 form-group">
-                            <label for="card_expire1">Validade Ano</label>
-                            <input type="text" class="form-control" id="card_expire1" name="card_expire1" maxlength="4" placeholder="AAAA" required>
+						<div class="col-sm-4 required">
+                            <label for="input-card-expire1" class="col-form-label">Validade Ano</label>
+                            <input type="text" class="form-control" id="input-card-expire1" name="card_expire1" maxlength="4" placeholder="AAAA" class="form-control"/>
                             <div id="error-card-expire1" class="invalid-feedback"></div>
                         </div>
-                        <div class="col-sm-4 form-group">
-                            <label for="card_cvv">CVV</label>
-                            <input type="text" class="form-control" id="card_cvv" name="card_cvv" maxlength="4" placeholder="CVV" required>
+                        <div class="col-sm-4 required">
+                            <label for="input-card-cvv" class="col-form-label">CVV</label>
+                            <input type="text" class="form-control" id="input-card-cvv" name="card_cvv" maxlength="4" placeholder="CVV" class="form-control"/>
                             <div id="error-card-cvv" class="invalid-feedback"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="installments">Parcelas</label>
-                        <select class="form-control" id="installments" name="installments" required>
+                        <label for="installments" class="col-form-label">Parcelas</label>
+                        <select class="form-control" id="installments" name="installments" class="form-select"/>
                             <option value="">Selecione</option>
 							{% for parcela in parc %}
                             <option value="{{ parcela.parcelas }}:{{ parcela.preco }}">{{ parcela.parcelas }}X - {{ parcela.valor_parcela }} 
@@ -97,7 +96,8 @@
                     <div class="text-end">
       <button type="submit" id="button-confirm" class="btn btn-primary">{{ button_confirm }}</button>
     </div>
-  
+   
+
     </fieldset>
                 </form>
           </div>
@@ -106,7 +106,7 @@
 
 
 <script type="text/javascript"><!--
-$('#button-confirm').on('submit', function(e) {
+$('#payment-form').on('submit', function(e) {
     e.preventDefault();
 
     var element = this;
@@ -148,7 +148,7 @@ $('#button-confirm').on('submit', function(e) {
 
             if (json['warning']) {
 				$('#apireturn').after('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json['warning'] + '</div>');
-                $('#card_cvv').val("");
+                $('#input-card-cvv').val("");
 			}
 
 		},
@@ -161,23 +161,23 @@ $('#button-confirm').on('submit', function(e) {
 
 <script>
 $(document).ready(function(){
-    $('#card_name').on('input', function() {
+    $('#input-card-name').on('input', function() {
        this.value = this.value.toUpperCase();
     });
 
-    $('#card_number').on('input', function() {
+    $('#input-card-number').on('input', function() {
         this.value = this.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ');
     });
     
-    $('#card_expire').on('input', function() {
+    $('#input-card-expire').on('input', function() {
         this.value = this.value.replace(/\D/g, '').substr(0, 2);
     });
 
-    $('#card_expire1').on('input', function() {
+    $('#input-card-expire1').on('input', function() {
         this.value = this.value.replace(/\D/g, '').substr(0, 4);
     });
 
-    $('#card_cvv').on('input', function() {
+    $('#input-card-cvv').on('input', function() {
         this.value = this.value.replace(/\D/g, '').substr(0, 4);
     });
 });
@@ -204,7 +204,7 @@ $(document).ready(function(){
         return null;
     }
 
-    $('#card_number').on('input', function() {
+    $('#input-card-number').on('input', function() {
         let numero = $(this).val().replace(/\D/g, '');
         $(this).val(numero.replace(/(\d{4})(?=\d)/g, '$1 ')); // máscara simples
 

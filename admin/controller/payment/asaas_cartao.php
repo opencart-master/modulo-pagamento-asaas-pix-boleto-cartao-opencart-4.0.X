@@ -88,7 +88,7 @@ class AsaasCartao extends \Opencart\System\Engine\Controller {
 
 		if (isset($this->request->get['payment_asaas_cartao_parc1'])) {
 			$data['payment_asaas_cartao_parc1'] = $this->request->get['payment_asaas_cartao_parc1'];
-		} elseif (!empty($this->config->get('payment_asaas_cartao1_parc1'))) {
+		} elseif (!empty($this->config->get('payment_asaas_cartao_parc1'))) {
 			$data['payment_asaas_cartao_parc1'] = $this->config->get('payment_asaas_cartao_parc1');
 		} else {
 			$data['payment_asaas_cartao_parc1'] = 12;
@@ -96,7 +96,7 @@ class AsaasCartao extends \Opencart\System\Engine\Controller {
 
 		if (isset($this->request->get['payment_asaas_cartao_juros'])) {
 			$data['payment_asaas_cartao_juros'] = $this->request->get['payment_asaas_cartao_juros'];
-		} elseif (!empty($this->config->get('payment_asaas_cartao1_parc1'))) {
+		} elseif (!empty($this->config->get('payment_asaas_cartao_parc1'))) {
 			$data['payment_asaas_cartao_juros'] = $this->config->get('payment_asaas_cartao_juros');
 		} else {
 			$data['payment_asaas_cartao_juros'] = 3.99;

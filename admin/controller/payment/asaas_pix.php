@@ -127,8 +127,8 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 		
         $data['custom_fields'] = $this->model_customer_custom_field->getCustomFields();
 
-		$data['success'] = isset($this->session->data['success']) ? $this->session->data['success'] : '';
-		$data['error'] = isset($this->session->data['error']) ? $this->session->data['error'] : '';
+		$data['success'] = isset($this->session->data['success_wb']) ? $this->session->data['success_wb'] : '';
+		$data['error'] = isset($this->session->data['error_wb']) ? $this->session->data['error_wb'] : '';
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
@@ -182,6 +182,7 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
     }
 
 	public function webhook(): void {
+		require_once DIR_EXTENSION . 'asaas/system/library/asaas/asaas_api.php';
 		$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_pix_api_key'));
 		$this->load->language('extension/asaas/payment/asaas_pix');
 
@@ -213,9 +214,9 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 		$resposta = $asaas->createWebhooks($webhook);
 
 		if(isset($resposta['errors'])) {
-		$this->session->data['error'] = $resposta['errors'][0]['description'];
+		$this->session->data['error_wb'] = $resposta['errors'][0]['description'];
 		} else {
-		$this->session->data['success'] = "WEBHOOK CRIADO COM SUCESSO!";
+		$this->session->data['success_wb'] = "WEBHOOK CRIADO COM SUCESSO!";
 		}
 
 		$this->index();

@@ -128,7 +128,7 @@ class AsaasBoleto extends \Opencart\System\Engine\Controller {
 		require_once DIR_EXTENSION . 'asaas/system/library/asaas/asaas_api.php';
 		$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_boleto_api_key'));
 
-		$resposta = json_decode($asaas->getPaymentInfo($id), true);
+		$resposta = $asaas->getPaymentInfo($id);
 
 		return $resposta;
     }

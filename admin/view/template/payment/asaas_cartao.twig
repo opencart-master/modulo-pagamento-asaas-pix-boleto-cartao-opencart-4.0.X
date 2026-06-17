@@ -18,22 +18,8 @@
       <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_edit }}</div>
       <div class="card-body">
         <form id="form-payment" action="{{ save }}" method="post" data-oc-toggle="ajax">
-          <div class="row mb-3">
-            <label class="col-sm-2 control-label" for="input-mode">{{ entry_mode }}</label>
-            <div class="col-sm-10">
-              <select name="payment_asaas_cartao_mode" id="input-mode" class="form-control">
-                {% if payment_asaas_cartao_mode %}
-                <option value="1" selected="selected">{{ text_prod }}</option>
-                <option value="0">{{ text_sand }}</option>
-                {% else %}
-                <option value="1">{{ text_prod }}</option>
-                <option value="0" selected="selected">{{ text_sand }}</option>
-                {% endif %}
-              </select>
-            </div>
-          </div>
           <div class="row mb-3 required">
-            <label class="col-sm-2 control-label" for="input-key">{{ entry_key }}</label>
+            <label class="col-sm-2 col-form-label" for="input-key">{{ entry_key }}</label>
             <div class="col-sm-10">
               <input type="text" name="payment_asaas_cartao_api_key" value="{{ payment_asaas_cartao_api_key }}" placeholder="{{ entry_key }}" id="input-key" class="form-control" />
             </div>
@@ -78,21 +64,27 @@
 				  </div>
 			  </div>
           <div class="row mb-3">
-            <label class="col-sm-2 control-label" for="input-parc">{{ entry_parc }}</label>
+            <label class="col-sm-2 col-form-label" for="input-parc">{{ entry_parc }}</label>
             <div class="col-sm-10">
               <input type="text" name="payment_asaas_cartao_parc" value="{{ payment_asaas_cartao_parc }}" placeholder="{{ entry_parc }}" id="input-parc" class="form-control" />
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-2 control-label" for="input-parc1">{{ entry_parc1 }}</label>
+            <label class="col-sm-2 col-form-label" for="input-parc1">{{ entry_parc1 }}</label>
             <div class="col-sm-10">
               <input type="text" name="payment_asaas_cartao_parc1" value="{{ payment_asaas_cartao_parc1 }}" placeholder="{{ entry_parc1 }}" id="input-parc1" class="form-control" />
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-2 control-label" for="input-juros">{{ entry_juros }}</label>
+            <label class="col-sm-2 col-form-label" for="input-juros">{{ entry_juros }}</label>
             <div class="col-sm-10">
               <input type="text" name="payment_asaas_cartao_juros" value="{{ payment_asaas_cartao_juros }}" placeholder="{{ entry_juros }}" id="input-juros" class="form-control" />
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="input-venc">{{ entry_venc }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="payment_asaas_cartao_venc" value="{{ payment_asaas_cartao_venc }}" placeholder="{{ entry_venc }}" id="input-venc" class="form-control" />
             </div>
           </div>
           <div class="row mb-3">
@@ -155,7 +147,7 @@
             </div>
           </div>          
           <div class="row mb-3">
-            <label class="col-sm-2 control-label" for="input-sort-order">{{ entry_sort_order }}</label>
+            <label class="col-sm-2 col-form-label" for="input-sort-order">{{ entry_sort_order }}</label>
             <div class="col-sm-10">
               <input type="text" name="payment_asaas_cartao_sort_order" value="{{ payment_asaas_cartao_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-sort-order" class="form-control" />
             </div>
