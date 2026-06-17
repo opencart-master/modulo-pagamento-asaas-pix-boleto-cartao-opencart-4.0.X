@@ -127,6 +127,9 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 		
         $data['custom_fields'] = $this->model_customer_custom_field->getCustomFields();
 
+		$data['success'] = isset($this->session->data['success']) ? $this->session->data['success'] : '';
+		$data['error'] = isset($this->session->data['error']) ? $this->session->data['error'] : '';
+
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
@@ -159,7 +162,7 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 			$this->model_setting_setting->editSetting('payment_asaas_pix', $this->request->post);
 
 			$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_pix_api_key'));
-			$sandbox = $asaas->checkSandbox('');
+			$sandbox = $asaas->checkSandbox($this->config->get('payment_asaas_pix_api_key'));
 
 			$json['success'] = $this->language->get('text_success');
 		}
@@ -179,11 +182,12 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
     }
 
 	public function webhook(): void {
+		$asaas = new \Opencart\System\Library\Asaas\AsaasApi($this->config->get('payment_asaas_pix_api_key'));
 		$this->load->language('extension/asaas/payment/asaas_pix');
 
 		$this->document->setTitle($this->language->get('heading_title'));
 
-		$webhook = json_encode(array(
+		$webhook = array(
 		"events" => [
 			"PAYMENT_AUTHORIZED",
     		"PAYMENT_CONFIRMED",
@@ -204,14 +208,14 @@ class AsaasPix extends \Opencart\System\Engine\Controller {
 		"sendType" => "SEQUENTIALLY",
 		"interrupted" => false,
 		"email" => $this->config->get('config_email')
-		));
+		);
 
-		$resposta = json_decode($asaas->createWebhooks($webhook), true);
+		$resposta = $asaas->createWebhooks($webhook);
 
 		if(isset($resposta['errors'])) {
-		$this->log->write($resposta['errors'][0]['description']);
+		$this->session->data['error'] = $resposta['errors'][0]['description'];
 		} else {
-		$this->log->write("WEBHOOK CRIADO COM SUCESSO!");
+		$this->session->data['success'] = "WEBHOOK CRIADO COM SUCESSO!";
 		}
 
 		$this->index();

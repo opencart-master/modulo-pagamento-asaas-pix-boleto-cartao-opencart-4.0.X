@@ -16,24 +16,20 @@
     </div>
   </div>
   <div class="container-fluid">
+        {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
     <div class="card">
       <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_edit }}</div>
       <div class="card-body">
         <form id="form-payment" action="{{ save }}" method="post" data-oc-toggle="ajax">
-          <div class="row mb-3">
-            <label class="col-sm-2 control-label" for="input-mode">{{ entry_mode }}</label>
-            <div class="col-sm-10">
-              <select name="payment_asaas_pix_mode" id="input-mode" class="form-control">
-                {% if payment_asaas_pix_mode %}
-                <option value="1" selected="selected">{{ text_prod }}</option>
-                <option value="0">{{ text_sand }}</option>
-                {% else %}
-                <option value="1">{{ text_prod }}</option>
-                <option value="0" selected="selected">{{ text_sand }}</option>
-                {% endif %}
-              </select>
-            </div>
-          </div>
           <div class="row mb-3 required">
             <label class="col-sm-2 control-label" for="input-key">{{ entry_key }}</label>
             <div class="col-sm-10">
