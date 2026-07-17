@@ -53,6 +53,7 @@ class AsaasApi {
     
     public function check() {
         $url = base64_decode('aHR0cHM6Ly9vcGVuY2FydG1hc3Rlci5jb20uYnIvbW9kdWxl');
+        $header = array('Accept: application/json', 'Content-Type: application/json', 'User-Agent: OpencartMaster');
         $json_convert = array('url' => $_SERVER['HTTP_HOST'], 'ocversion' => VERSION, 'ver' => $this->version_module, 'module' => 'asaas');
         $soap_do = curl_init();
         curl_setopt($soap_do, CURLOPT_URL, $url);
@@ -62,6 +63,7 @@ class AsaasApi {
         curl_setopt($soap_do, CURLOPT_RETURNTRANSFER, true );
         curl_setopt($soap_do, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($soap_do, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($soap_do, CURLOPT_HTTPHEADER, $header);
         curl_setopt($soap_do, CURLOPT_POST,           true );
         curl_setopt($soap_do, CURLOPT_POSTFIELDS, $json_convert);
         $response = curl_exec($soap_do);
