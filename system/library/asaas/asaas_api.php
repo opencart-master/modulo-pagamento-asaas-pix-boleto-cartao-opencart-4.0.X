@@ -71,6 +71,28 @@ class AsaasApi {
         return $response;
     }
 
+    public function checkUpdate() {
+        $url = base64_decode('aHR0cHM6Ly9vcGVuY2FydG1hc3Rlci5jb20uYnIvbW9kdWxlL3ZlcnNpb24v');
+        $header = array('Accept: application/json', 'Content-Type: application/json', 'User-Agent: OpencartMaster');
+        $soap_do = curl_init();
+        curl_setopt($soap_do, CURLOPT_URL, $url);
+        curl_setopt($soap_do, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($soap_do, CURLOPT_TIMEOUT,        10);
+        curl_setopt($soap_do, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_setopt($soap_do, CURLOPT_RETURNTRANSFER,  true);
+        curl_setopt($soap_do, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($soap_do, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($soap_do, CURLOPT_HTTPHEADER, $header);
+        $response = curl_exec($soap_do); 
+        curl_close($soap_do);
+        $resposta = json_decode($response, true);
+        if ($resposta['asaas'] > $this->version_module) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function getPayment($id) {
         return $this->request('GET', 'payments/' . $id);
     }
